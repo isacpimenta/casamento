@@ -10,10 +10,10 @@ function App() {
         <p className="text-2xl">DATE</p>
       </div>
 
-      <img src="src\assets\foto.png" alt="" />
+      <img src="..\public\foto.png" alt="" />
 
-      <img className="absolute top-0 right-[-250px] opacity-50" src="src\assets\ramo1.png" alt="" />
-      <img className="absolute top-100 left-[-250px] opacity-50" src="src\assets\ramo2.png" alt="" />
+      <img className="absolute top-0 right-[-250px] opacity-50" src="..\public\ramo1.png" alt="" />
+      <img className="absolute top-100 left-[-250px] opacity-50" src="..\public\ramo2.png" alt="" />
 
       <div className="flex flex-col items-center h-full w-full">
         <h1 className="font-great-vibes text-3xl mt-5 text-[var(--color-green3)]">
@@ -26,8 +26,8 @@ function App() {
           <p className="font-rubik">2026</p>
         </div>
 
-        <img className="max-h-8" src="src\assets\flecha.png" alt="" />
-        <img src="src\assets\matdeba.png" alt="" />
+        <img className="max-h-8" src="..\public\flecha.png" alt="" />
+        <img src="..\public\matdeba.png" alt="" />
       </div>
 
       <div>
