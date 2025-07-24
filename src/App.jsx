@@ -12,8 +12,8 @@ function App() {
 
       <img src="/foto.png" alt="" />
 
-      <img className="absolute top-0 right-[-250px] opacity-50" src="/ramo1.png" alt="" />
-      <img className="absolute top-100 left-[-250px] opacity-50" src="/ramo2.png" alt="" />
+      <img className="absolute top-0 right-[-190px] opacity-50" src="/ramo1.png" alt="" />
+      <img className="absolute top-100 left-[-190px] opacity-50" src="/ramo2.png" alt="" />
 
       <div className="flex flex-col items-center h-full w-full">
         <h1 className="font-great-vibes text-3xl mt-5 text-[var(--color-green3)]">
