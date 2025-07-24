@@ -15,7 +15,7 @@ function App() {
       <img className="absolute top-0 right-[-190px] opacity-50" src="/ramo1.png" alt="" />
       <img className="absolute top-100 left-[-190px] opacity-50" src="/ramo2.png" alt="" />
 
-      <div className="flex flex-col items-center h-full w-full">
+      <div className="flex flex-col items-center w-full">
         <h1 className="font-great-vibes text-3xl mt-5 text-[var(--color-green3)]">
           Thursday
         </h1>
@@ -35,8 +35,6 @@ function App() {
           <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-[var(--color-green3)] to-[var(--color-green1)] transform translate-x-[-100%] group-hover:translate-x-0 transition-transform duration-500 ease-in-out"></span>
           <span className="relative z-10">CONFIRMAR PRESENÇA</span>
         </button>
-
-
       </div>
     </div>
   )
