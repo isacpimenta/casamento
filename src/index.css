@@ -1,0 +1,15 @@
+@import "tailwindcss";
+@import '@fontsource/great-vibes'; 
+@import '@fontsource/rubik';
+
+@theme {
+  --font-great-vibes: "Great Vibes", cursive;
+  --font-rubik: "Rubik", sans-serif;
+
+  --color-green1: #859366;
+  --color-green2: #5C654C;
+  --color-green3: #758b60;
+}
+
+
+
