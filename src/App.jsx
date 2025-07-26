@@ -1,3 +1,4 @@
+import { MapPin, Gift, Check } from 'lucide-react'
 
 function App() {
   return (
@@ -30,11 +31,14 @@ function App() {
         <img src="/matdeba.png" alt="" />
       </div>
 
-      <div className="mt-5">
-        <button className="relative inline-block px-6 py-2 font-rubik bg-[var(--color-green3)] text-white border border-[var(--color-green3)] rounded-full overflow-hidden group">
+      <div className="flex gap-2 mt-5 z-0">
+        {/* <button className="relative inline-block px-6 py-2 font-rubik bg-[var(--color-green3)] text-white border border-[var(--color-green3)] rounded-full overflow-hidden group">
           <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-[var(--color-green3)] to-[var(--color-green1)] transform translate-x-[-100%] group-hover:translate-x-0 transition-transform duration-500 ease-in-out"></span>
           <span className="relative z-10">CONFIRMAR PRESENÇA</span>
-        </button>
+        </button> */}
+        <button className='rounded-full py-1 px-1 border-2 cursor-pointer border-y-[var(--color-green3)] text-[var(--color-green3)] hover:bg-[var(--color-green3)] transition duration-200'><MapPin className='hover:text-white text-[var(--color-green3)]' /></button>
+        <button className='rounded-full py-1 px-1 border-2 cursor-pointer border-y-[var(--color-green3)] text-[var(--color-green3)] hover:bg-[var(--color-green3)] transition duration-200'><Gift className='hover:text-white text-[var(--color-green3)]' /></button>
+        <button className='rounded-full py-1 px-1 border-2 cursor-pointer border-y-[var(--color-green3)] text-[var(--color-green3)] hover:bg-[var(--color-green3)] transition duration-200'><Check className='hover:text-white text-[var(--color-green3)]' /></button>
       </div>
     </div>
   )
