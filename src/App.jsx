@@ -30,7 +30,7 @@ function App() {
           <p className="font-rubik">2026</p>
         </div>
 
-        <img className="max-h-8" src="/flecha.png" alt="" />
+        <img className="max-h-8 mt-2 mb-2" src="/flecha.png" alt="" />
         <img src="/matdeba.png" alt="" />
       </div>
 
