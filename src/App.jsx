@@ -1,6 +1,9 @@
 import { MapPin, Gift, Check } from 'lucide-react'
+import { useNavigate } from 'react-router-dom';
 
 function App() {
+  const navigate = useNavigate();
+
   return (
     <div className="relative flex flex-col items-center h-screen w-screen overflow-hidden py-10 px-10">
       <div className="text-center">
@@ -32,13 +35,13 @@ function App() {
       </div>
 
       <div className="flex gap-2 mt-5 z-0">
-        <button className='rounded-full py-1 px-1 border-2 cursor-pointer border-y-[var(--color-green3)] text-[var(--color-green3)] hover:bg-[var(--color-green3)] transition duration-200 animate-bounce [animation-duration:2s]'>
+        <button onClick={() => navigate("/local")} className='rounded-full py-1 px-1 border-2 cursor-pointer border-y-[var(--color-green3)] text-[var(--color-green3)] hover:bg-[var(--color-green3)] transition duration-200 animate-bounce [animation-duration:2s]'>
           <MapPin className='hover:text-white text-[var(--color-green3)]' />
         </button>
         <button className='rounded-full py-1 px-1 border-2 cursor-pointer border-y-[var(--color-green3)] text-[var(--color-green3)] hover:bg-[var(--color-green3)] transition duration-200 animate-bounce [animation-duration:2s] [animation-delay:0.2s]'>
           <Gift className='hover:text-white text-[var(--color-green3)]' />
         </button>
-        <button className='rounded-full py-1 px-1 border-2 cursor-pointer border-y-[var(--color-green3)] text-[var(--color-green3)] hover:bg-[var(--color-green3)] transition duration-200 animate-bounce [animation-duration:2s] [animation-delay:0.4s]'>
+        <button onClick={() => navigate("/confirmar")} className='rounded-full py-1 px-1 border-2 cursor-pointer border-y-[var(--color-green3)] text-[var(--color-green3)] hover:bg-[var(--color-green3)] transition duration-200 animate-bounce [animation-duration:2s] [animation-delay:0.4s]'>
           <Check className='hover:text-white text-[var(--color-green3)]' />
         </button>
       </div>
