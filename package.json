@@ -14,6 +14,7 @@
     "@fontsource/great-vibes": "^5.2.6",
     "@fontsource/rubik": "^5.2.6",
     "@tailwindcss/vite": "^4.1.11",
+    "firebase": "^12.1.0",
     "install": "^0.13.0",
     "lucide-react": "^0.525.0",
     "npm": "^11.5.1",

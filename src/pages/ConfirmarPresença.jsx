@@ -2,13 +2,17 @@ import { CheckCircle, Heart } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 
+// Importa Firestore
+import { collection, addDoc, query, where, getDocs, updateDoc, doc } from 'firebase/firestore';
+import { db } from '../firebase.js'; // caminho pro seu arquivo firebase.js
+
 function ConfirmarPresenca() {
   const navigate = useNavigate();
 
   const [nome, setNome] = useState('');
   const [comparecer, setComparecer] = useState(null); // 'sim' ou 'nao'
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!nome.trim() || !comparecer) {
@@ -16,11 +20,37 @@ function ConfirmarPresenca() {
       return;
     }
 
-    alert(`Obrigado, ${nome}! Sua resposta foi: ${comparecer === 'sim' ? 'Sim, vou comparecer' : 'Não poderei comparecer'}.`);
+    try {
+      // Verifica se convidado já existe (por nome)
+      const convidadosRef = collection(db, 'convidados');
+      const q = query(convidadosRef, where('nome', '==', nome.trim()));
+      const querySnapshot = await getDocs(q);
 
-    // Aqui você pode fazer envio para backend se quiser
+      if (querySnapshot.empty) {
+        // Se não existe, adiciona
+        await addDoc(convidadosRef, {
+          nome: nome.trim(),
+          comparecer,
+          dataConfirmacao: new Date().toISOString(),
+        });
+      } else {
+        // Se já existe, atualiza o documento
+        const docId = querySnapshot.docs[0].id;
+        const docRef = doc(db, 'convidados', docId);
+        await updateDoc(docRef, {
+          comparecer,
+          dataConfirmacao: new Date().toISOString(),
+        });
+      }
 
-    navigate('/'); // volta para a página inicial depois do envio
+      alert(`Obrigado, ${nome}! Sua resposta foi: ${comparecer === 'sim' ? 'Sim, vou comparecer' : 'Não poderei comparecer'}.`);
+
+      navigate('/'); // volta pra home
+
+    } catch (error) {
+      console.error('Erro ao salvar presença:', error);
+      alert('Erro ao enviar confirmação. Tente novamente.');
+    }
   };
 
   return (
