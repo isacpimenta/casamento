@@ -6,7 +6,7 @@ function Presentes() {
   const navigate = useNavigate();
   const [modalVisivel, setModalVisivel] = useState(false);
 
-  const chaveTexto = "chavepixaleatoria@exemplo.com";
+  const chaveTexto = "d105ae1a-f575-4bbe-9b60-bc5a6d8d0530";
 
   const copiarPix = () => {
     navigator.clipboard.writeText(chaveTexto);
@@ -26,7 +26,7 @@ function Presentes() {
       <div className="bg-gray-100 p-6 rounded-xl shadow-md flex flex-col items-center">
         <QrCode className="w-6 h-6 text-[var(--color-green3)] mb-2" />
         <img
-          src="/qrcode-pix.png"
+          src="/QR CODE.jpg"
           alt="QR Code Pix"
           className="w-64 h-64 object-contain mb-4"
         />
@@ -49,7 +49,7 @@ function Presentes() {
 
       <button
         onClick={() => navigate("/")}
-        className="mt-10 flex items-center gap-2 text-[var(--color-green3)] hover:underline"
+        className="mt-10 flex items-center gap-2 cursor-pointer text-[var(--color-green3)] hover:underline"
       >
         <Heart size={18} />
         Voltar para o convite

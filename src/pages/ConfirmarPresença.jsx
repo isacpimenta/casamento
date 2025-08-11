@@ -1,4 +1,4 @@
-import { CheckCircle } from 'lucide-react';
+import { CheckCircle, Heart } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 
@@ -7,10 +7,6 @@ function ConfirmarPresenca() {
 
   const [nome, setNome] = useState('');
   const [comparecer, setComparecer] = useState(null); // 'sim' ou 'nao'
-
-  const handleBack = () => {
-    navigate('/');
-  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -86,9 +82,10 @@ function ConfirmarPresenca() {
       </form>
 
       <button
-        onClick={handleBack}
-        className="cursor-pointer mt-6 px-6 py-2 bg-gray-300 text-gray-700 rounded-full hover:bg-gray-400 transition duration-300"
+        onClick={() => navigate("/")}
+        className="mt-10 flex items-center gap-2 cursor-pointer text-[var(--color-green3)] hover:underline"
       >
+        <Heart size={18} />
         Voltar para o convite
       </button>
     </div>
