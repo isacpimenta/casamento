@@ -1,8 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../firebase.js';
 import Swal from 'sweetalert2';
-import jsPDF from 'jspdf';
+
+const SESSION_TIMEOUT = 30 * 60 * 1000; // 30 minutos em ms
 
 function Dashboard() {
   const [convidados, setConvidados] = useState([]);
@@ -10,6 +12,51 @@ function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [filtro, setFiltro] = useState('');
   const [expandedId, setExpandedId] = useState(null);
+  const navigate = useNavigate();
+
+  const timeoutId = useRef(null);
+
+  // Função para limpar timeout e setar outro
+  const resetTimeout = () => {
+    if (timeoutId.current) clearTimeout(timeoutId.current);
+    timeoutId.current = setTimeout(() => {
+      logout();
+      Swal.fire({
+        icon: 'info',
+        title: 'Sessão expirada',
+        text: 'Por segurança, você foi deslogado por inatividade.',
+        timer: 2500,
+        showConfirmButton: false,
+      });
+    }, SESSION_TIMEOUT);
+  };
+
+  const logout = () => {
+    localStorage.removeItem('adminLogged');
+    navigate('/');
+  };
+
+  // Proteção e carregamento inicial
+  useEffect(() => {
+    const logged = localStorage.getItem('adminLogged');
+    if (logged !== 'true') {
+      navigate('/');
+      return;
+    }
+
+    fetchConvidados();
+    fetchLogs();
+
+    resetTimeout();
+
+    // Limpar timeout ao desmontar
+    return () => clearTimeout(timeoutId.current);
+  }, [navigate]);
+
+  // Resetar timeout em interação com filtro ou clique em lista
+  useEffect(() => {
+    resetTimeout();
+  }, [filtro, expandedId]);
 
   // Buscar convidados
   const fetchConvidados = async () => {
@@ -50,11 +97,6 @@ function Dashboard() {
     }
   };
 
-  useEffect(() => {
-    fetchConvidados();
-    fetchLogs();
-  }, []);
-
   const convidadosFiltrados = convidados.filter(c =>
     c.nome?.toLowerCase().includes(filtro.toLowerCase())
   );
@@ -82,41 +124,28 @@ function Dashboard() {
     setExpandedId(expandedId === id ? null : id);
   };
 
-  // Função para gerar PDF da lista confirmados
-  const imprimirConfirmadosPDF = () => {
-    if (confirmados.length === 0) {
-      Swal.fire('Lista vazia', 'Não há convidados confirmados para imprimir.', 'info');
-      return;
-    }
-
-    const doc = new jsPDF();
-
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(18);
-    doc.text('Lista de Convidados Confirmados', 14, 20);
-
-    doc.setFontSize(12);
-    doc.setFont('helvetica', 'normal');
-
-    let y = 30;
-    confirmados.forEach((c, i) => {
-      if (y > 280) {
-        doc.addPage();
-        y = 20;
-      }
-      const dataConfirm = formatTimestamp(c.dataConfirmacao);
-      doc.text(`${i + 1}. ${c.nome} (Confirmado em ${dataConfirm})`, 14, y);
-      y += 10;
-    });
-
-    doc.save('confirmados.pdf');
-  };
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <p className="text-xl text-gray-600">Carregando...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-5xl mx-auto p-6 font-sans text-gray-800">
-      <h1 className="text-5xl font-bold mb-10 text-center uppercase tracking-wide font-bebas">
-        Lista de Presenças
-      </h1>
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-5xl font-bold uppercase tracking-wide font-bebas">
+          Lista de Presenças
+        </h1>
+        <button
+          onClick={logout}
+          className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded font-semibold transition"
+          title="Sair"
+        >
+          Logout
+        </button>
+      </div>
 
       <div className="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4">
         <input
@@ -142,18 +171,9 @@ function Dashboard() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
         {/* Confirmados */}
         <section>
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-3xl font-extrabold text-green-700 border-b-4 border-green-600 pb-2 font-bebas">
-              Vai Comparecer ({confirmados.length})
-            </h2>
-            <button
-              onClick={imprimirConfirmadosPDF}
-              className="px-4 py-1 bg-green-600 hover:bg-green-700 text-white rounded shadow font-semibold transition"
-              title="Imprimir lista de confirmados"
-            >
-              Imprimir Confirmados
-            </button>
-          </div>
+          <h2 className="text-3xl font-extrabold mb-6 text-green-700 border-b-4 border-green-600 pb-2 font-bebas">
+            Vai Comparecer ({confirmados.length})
+          </h2>
           {confirmados.length === 0 ? (
             <p className="italic text-green-600">Nenhum confirmado ainda.</p>
           ) : (
@@ -162,7 +182,10 @@ function Dashboard() {
                 <li
                   key={id}
                   className="cursor-pointer bg-green-50 rounded-lg shadow-sm p-4 transition hover:shadow-md hover:bg-green-100"
-                  onClick={() => toggleExpand(id)}
+                  onClick={() => {
+                    toggleExpand(id);
+                    resetTimeout();
+                  }}
                 >
                   <div className="flex items-center justify-between">
                     <span className="text-lg font-semibold text-green-900">{nome}</span>
@@ -194,7 +217,10 @@ function Dashboard() {
                 <li
                   key={id}
                   className="cursor-pointer bg-red-50 rounded-lg shadow-sm p-4 transition hover:shadow-md hover:bg-red-100"
-                  onClick={() => toggleExpand(id)}
+                  onClick={() => {
+                    toggleExpand(id);
+                    resetTimeout();
+                  }}
                 >
                   <div className="flex items-center justify-between">
                     <span className="text-lg font-semibold text-red-900">{nome}</span>

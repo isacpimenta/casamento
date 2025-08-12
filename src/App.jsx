@@ -52,10 +52,3 @@ function App() {
 }
 
 export default App
-
-        {/* <button className="relative inline-block px-6 py-2 font-rubik bg-[var(--color-green3)] text-white border border-[var(--color-green3)] rounded-full overflow-hidden group">
-          <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-[var(--color-green3)] to-[var(--color-green1)] transform translate-x-[-100%] group-hover:translate-x-0 transition-transform duration-500 ease-in-out"></span>
-          <span className="relative z-10">CONFIRMAR PRESENÇA</span>
-        </button> */}
-
-        // botao antigo
