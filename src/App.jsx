@@ -15,7 +15,7 @@ function App() {
         alt="" 
       />
       <img 
-        className="absolute bottom-[-5%] left-[-15%] md:bottom-[-20%] md:left-[-15%] w-64 md:w-180 opacity-60 pointer-events-none rotate-12" 
+        className="absolute bottom-[-5%] left-[-20%] md:bottom-[-20%] md:left-[-15%] w-64 md:w-180 opacity-60 pointer-events-none rotate-12" 
         src="/ramo2.png" 
         alt="" 
       />
@@ -30,15 +30,11 @@ function App() {
       </div>
 
       {/* Moldura em Losango Restaurada */}
-      <div className="relative z-10 my-4">
-        <div className="w-52 h-52 md:w-64 md:h-64 border border-[var(--color-green3)] rotate-45 overflow-hidden flex items-center justify-center bg-gray-100 shadow-lg">
-          <img 
+      <img 
             src="/foto.png" 
             alt="Foto do Casal" 
-            className="w-[145%] h-[145%] object-cover -rotate-45" 
-          />
-        </div>
-      </div>
+            className="w-[145%] h-[145%] object-cover" 
+      />
 
       {/* Seção da Data e Nomes */}
       <div className="flex flex-col items-center w-full z-10">
