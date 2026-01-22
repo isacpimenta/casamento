@@ -1,52 +1,92 @@
-import { MapPin, Gift, Check, Pointer } from 'lucide-react'
+import { MapPin, Gift, Check } from 'lucide-react'
 import { useNavigate } from 'react-router-dom';
 
 function App() {
   const navigate = useNavigate();
 
   return (
-    <div className="relative flex flex-col items-center h-screen w-screen overflow-hidden py-10 px-10">
-      <div className="text-center">
-        <p className="text-2xl">SAVE</p>
-        <h1 className="font-great-vibes text-6xl mt-5 text-[var(--color-green3)]">
+    // Aumentei o pb-20 para empurrar o conteúdo inferior para cima
+    <div className="relative min-h-screen w-full overflow-hidden bg-white flex flex-col items-center justify-between pt-20 pb-40 md:pt-5 md:pb-20 px-6">
+      
+      {/* Ramos Decorativos */}
+      <img 
+        className="absolute top-[-5%] right-[-10%] md:top-[0%] md:right-[-15%] w-48 md:w-164 opacity-60 pointer-events-none" 
+        src="/ramo1.png" 
+        alt="" 
+      />
+      <img 
+        className="absolute bottom-[-5%] left-[-15%] md:bottom-[-20%] md:left-[-15%] w-64 md:w-180 opacity-60 pointer-events-none rotate-12" 
+        src="/ramo2.png" 
+        alt="" 
+      />
+
+      {/* Cabeçalho */}
+      <div className="text-center z-10">
+        <p className="text-lg md:text-2xl tracking-[0.2em] font-light text-gray-800">SAVE</p>
+        <h1 className="font-great-vibes text-5xl md:text-7xl my-2 text-[var(--color-green3)] leading-tight">
           The new
         </h1>
-        <p className="text-2xl">DATE</p>
+        <p className="text-lg md:text-2xl tracking-[0.2em] font-light text-gray-800">DATE</p>
       </div>
 
-      <img src="/foto.png" alt="" />
+      {/* Moldura em Losango Restaurada */}
+      <div className="relative z-10 my-4">
+        <div className="w-52 h-52 md:w-64 md:h-64 border border-[var(--color-green3)] rotate-45 overflow-hidden flex items-center justify-center bg-gray-100 shadow-lg">
+          <img 
+            src="/foto.png" 
+            alt="Foto do Casal" 
+            className="w-[145%] h-[145%] object-cover -rotate-45" 
+          />
+        </div>
+      </div>
 
-      <img className="absolute top-0 right-[-190px] opacity-50" src="/ramo1.png" alt="" />
-      <img className="absolute top-100 left-[-190px] opacity-50" src="/ramo2.png" alt="" />
-
-      <div className="flex flex-col items-center w-full">
-        <h1 className="font-great-vibes text-3xl mt-5 text-[var(--color-green3)]">
+      {/* Seção da Data e Nomes */}
+      <div className="flex flex-col items-center w-full z-10">
+        <h2 className="font-great-vibes text-3xl md:text-4xl text-[var(--color-green3)]">
           Thursday
-        </h1>
+        </h2>
 
-        <div className="flex justify-center items-center gap-4">
-          <p className="font-rubik">NOV</p>
-          <h1 className="font-rubik text-5xl">19</h1>
-          <p className="font-rubik">2026</p>
+        <div className="flex justify-center items-center gap-4 my-1">
+          <p className="font-rubik text-gray-600 font-medium">NOV</p>
+          <h1 className="font-rubik text-5xl md:text-6xl font-bold text-gray-800">19</h1>
+          <p className="font-rubik text-gray-600 font-medium">2026</p>
         </div>
 
-        <img className="max-h-8 mt-2 mb-2" src="/flecha.png" alt="" />
-        <img src="/matdeba.png" alt="" />
+        <div className="flex flex-col items-center gap-2 w-full max-w-[300px]">
+          <img className="h-8 object-contain" src="/flecha.png" alt="" />
+          <img className="w-full object-contain" src="/matdeba.png" alt="Matheus Abreu & Débora Senna" />
+        </div>
       </div>
 
-      <div className="flex gap-2 mt-5 z-0">
-        <button onClick={() => navigate("/local")} className='rounded-full py-1 px-1 border-2 cursor-pointer border-y-[var(--color-green3)] text-[var(--color-green3)] hover:bg-[var(--color-green3)] transition duration-200 animate-bounce [animation-duration:2s]'>
-          <MapPin className='hover:text-white text-[var(--color-green3)]' />
-        </button>
-        <button onClick={() => navigate("/presentes")} className='rounded-full py-1 px-1 border-2 cursor-pointer border-y-[var(--color-green3)] text-[var(--color-green3)] hover:bg-[var(--color-green3)] transition duration-200 animate-bounce [animation-duration:2s] [animation-delay:0.2s]'>
-          <Gift className='hover:text-white text-[var(--color-green3)]' />
-        </button>
-        <button onClick={() => navigate("/confirmar")} className='rounded-full py-1 px-1 border-2 cursor-pointer border-y-[var(--color-green3)] text-[var(--color-green3)] hover:bg-[var(--color-green3)] transition duration-200 animate-bounce [animation-duration:2s] [animation-delay:0.4s]'>
-          <Check className='hover:text-white text-[var(--color-green3)]' />
-        </button>
+      {/* Botões de Ação - Subidos com mb-4 ou ajuste de justify */}
+      <div className="flex flex-col items-center gap-4 z-10 mb-2">
+        <div className="flex gap-6">
+          <button 
+            onClick={() => navigate("/local")} 
+            className='p-3 rounded-full border border-[var(--color-green3)] text-[var(--color-green3)] hover:bg-[var(--color-green3)] hover:text-white transition-all duration-300 animate-bounce'
+          >
+            <MapPin size={24} />
+          </button>
+          
+          <button 
+            onClick={() => navigate("/presentes")} 
+            className='p-3 rounded-full border border-[var(--color-green3)] text-[var(--color-green3)] hover:bg-[var(--color-green3)] hover:text-white transition-all duration-300 animate-bounce [animation-delay:0.2s]'
+          >
+            <Gift size={24} />
+          </button>
+          
+          <button 
+            onClick={() => navigate("/confirmar")} 
+            className='p-3 rounded-full border border-[var(--color-green3)] text-[var(--color-green3)] hover:bg-[var(--color-green3)] hover:text-white transition-all duration-300 animate-bounce [animation-delay:0.4s]'
+          >
+            <Check size={24} />
+          </button>
+        </div>
+        
+        <p className='font-bebas text-xs tracking-widest text-[var(--color-green3)] opacity-80 uppercase'>
+          Clique nos ícones para acessar
+        </p>
       </div>
-
-      <p className='font-bebas mt-3 text-[var(--color-green3)]'>Clique nos ícones para acessar</p>
     </div>
   )
 }
