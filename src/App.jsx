@@ -6,7 +6,7 @@ function App() {
 
   return (
     // Aumentei o pb-20 para empurrar o conteúdo inferior para cima
-    <div className="relative min-h-screen w-full overflow-hidden bg-white flex flex-col items-center justify-between pt-5 pb-10 md:pt-5 md:pb-20 px-6">
+    <div className="relative min-h-screen w-full overflow-hidden bg-white flex flex-col items-center justify-between pt-5 pb-10 md:pt-10 md:pb-10 px-6">
       
       {/* Ramos Decorativos */}
       <img 
@@ -29,11 +29,10 @@ function App() {
         <p className="text-lg md:text-2xl tracking-[0.2em] font-light text-gray-800">DATE</p>
       </div>
 
-      {/* Moldura em Losango Restaurada */}
       <img 
             src="/foto.png" 
             alt="Foto do Casal" 
-            className="w-[145%] h-[145%] object-cover" 
+            className="w-[145%] h-[145%] md:w-[30%] md:h-[30%] object-cover" 
       />
 
       {/* Seção da Data e Nomes */}
