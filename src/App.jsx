@@ -15,7 +15,7 @@ function App() {
         alt="" 
       />
       <img 
-        className="absolute bottom-[-5%] left-[-20%] md:bottom-[-20%] md:left-[-15%] w-64 md:w-180 opacity-60 pointer-events-none rotate-12" 
+        className="absolute bottom-[-10%] left-[-25%] md:bottom-[-20%] md:left-[-15%] w-64 md:w-180 opacity-60 pointer-events-none rotate-12" 
         src="/ramo2.png" 
         alt="" 
       />
