@@ -7,8 +7,8 @@ import { collection, onSnapshot, setDoc, doc } from 'firebase/firestore';
 import { db } from '../firebase.js';
 
 // --- CONFIGURAÇÕES ---
-const chavePix = "d105ae1a-f575-4bbe-9b60-bc5a6d8d0530";
-const telefoneDono = "5521966630496";
+const chavePix = "matheusabreu021@gmail.com";
+const telefoneDono = "5521968237181";
 const enderecoEntrega = "Rua Topázios, S/N, Vila Sarapuí, Duque de Caxias - RJ, CEP 25050-007"; 
 
 const produtos = [
@@ -254,7 +254,7 @@ function Presentes() {
                 {(tipoPresente === 'pix' || produtoSelecionado?.cota) && (
                   <div className="flex flex-col items-center">
                     <div className="bg-gray-50 p-3 rounded-xl border border-dashed border-gray-300 mb-3 w-full flex flex-col items-center">
-                      <img src="/QR CODE.jpg" alt="QR Code" className="w-32 h-32 object-contain" />
+                      <img src="/QR CODE.jpeg" alt="QR Code" className="w-32 h-32 object-contain" />
                       <p className="text-[10px] text-gray-400 mt-1 font-mono">Valor: R$ {produtoSelecionado?.preco}</p>
                     </div>
                     <div className="w-full flex items-center gap-2 bg-gray-100 p-2 rounded-lg mb-4 border border-gray-200">
