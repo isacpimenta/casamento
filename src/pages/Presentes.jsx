@@ -98,9 +98,7 @@ function Presentes() {
       // 3. SOLUÇÃO PARA IOS: 
       // Em vez de window.open, usamos window.location para garantir o redirecionamento
       // ou tentamos o redirecionamento direto.
-      // Truque para enganar o bloqueador do Safari
-      const novaAba = window.open('', '_blank');
-      novaAba.location.href = urlZap;
+      window.location.href = urlZap;
 
       // Limpa os estados
       setModalPixAberto(false);
