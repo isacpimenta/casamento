@@ -70,7 +70,7 @@ function Presentes() {
       return;
     }
 
-    // 1. Criamos a mensagem antes do await
+    // 1. Prepara a URL antes de qualquer await (Crítico para iOS)
     const saudacao = "Olá Matheus e Débora!";
     const baseMsg = `${saudacao}\n\n` +
                     `🎁 *Presente:* ${produtoSelecionado.nome}\n` +
@@ -85,7 +85,7 @@ function Presentes() {
     const urlZap = `https://api.whatsapp.com/send?phone=${telefoneDono}&text=${encodeURIComponent(mensagemFinal)}`;
 
     try {
-      // 2. Bloqueia o item no Firebase
+      // 2. Bloqueia o item no Firebase (Apenas se não for cota)
       if (!produtoSelecionado.cota) {
         await setDoc(doc(db, "presentes", String(produtoSelecionado.id)), {
           comprador: nomeConvidado,
@@ -95,12 +95,9 @@ function Presentes() {
         });
       }
 
-      // 3. SOLUÇÃO PARA IOS: 
-      // Em vez de window.open, usamos window.location para garantir o redirecionamento
-      // ou tentamos o redirecionamento direto.
+      // 3. Redirecionamento compatível com Safari/iOS
       window.location.href = urlZap;
 
-      // Limpa os estados
       setModalPixAberto(false);
       setNomeConvidado('');
 
@@ -112,6 +109,7 @@ function Presentes() {
 
   const abrirOpcaoPresentear = (produto) => {
     setProdutoSelecionado(produto);
+    // Se for cota, forçamos o estado para 'pix' para esconder a aba de reserva
     setTipoPresente('pix');
     setModalPixAberto(true);
   };
@@ -206,17 +204,26 @@ function Presentes() {
               />
             </div>
 
-            <div className="flex w-full bg-gray-100 p-1 rounded-lg mb-6">
-              <button onClick={() => setTipoPresente('reservar')} className={`flex-1 py-2 text-xs font-bold rounded-md transition-all ${tipoPresente === 'reservar' ? 'bg-white text-[var(--color-green3)] shadow-sm' : 'text-gray-400'}`}>
-                RESERVAR ITEM
-              </button>
-              <button onClick={() => setTipoPresente('pix')} className={`flex-1 py-2 text-xs font-bold rounded-md transition-all ${tipoPresente !== 'reservar' ? 'bg-white text-[var(--color-green3)] shadow-sm' : 'text-gray-400'}`}>
-                COMPRAR AGORA
-              </button>
-            </div>
+            {/* SELETOR DE ABAS: Oculto se for COTA */}
+            {!produtoSelecionado?.cota && (
+              <div className="flex w-full bg-gray-100 p-1 rounded-lg mb-6">
+                <button 
+                  onClick={() => setTipoPresente('reservar')} 
+                  className={`flex-1 py-2 text-xs font-bold rounded-md transition-all ${tipoPresente === 'reservar' ? 'bg-white text-[var(--color-green3)] shadow-sm' : 'text-gray-400'}`}
+                >
+                  RESERVAR ITEM
+                </button>
+                <button 
+                  onClick={() => setTipoPresente('pix')} 
+                  className={`flex-1 py-2 text-xs font-bold rounded-md transition-all ${tipoPresente !== 'reservar' ? 'bg-white text-[var(--color-green3)] shadow-sm' : 'text-gray-400'}`}
+                >
+                  COMPRAR AGORA
+                </button>
+              </div>
+            )}
 
-            {/* CONTEÚDO RESERVAR */}
-            {tipoPresente === 'reservar' && (
+            {/* CONTEÚDO RESERVAR (Apenas produtos normais) */}
+            {!produtoSelecionado?.cota && tipoPresente === 'reservar' && (
               <div className="w-full flex flex-col items-center animate-[fadeIn_0.3s_ease-out]">
                 <p className="text-xs text-gray-500 text-center mb-6 px-2">
                   Escolha esta opção se for comprar em uma loja física depois. O item será bloqueado na lista agora.
@@ -227,19 +234,24 @@ function Presentes() {
               </div>
             )}
 
-            {/* CONTEÚDO COMPRAR AGORA */}
-            {tipoPresente !== 'reservar' && (
+            {/* CONTEÚDO COMPRAR AGORA / PIX (Para todos, mas com sub-abas apenas para produtos normais) */}
+            {(produtoSelecionado?.cota || tipoPresente !== 'reservar') && (
               <div className="w-full animate-[fadeIn_0.3s_ease-out]">
-                <div className="flex gap-2 mb-4">
-                  <button onClick={() => setTipoPresente('pix')} className={`flex-1 py-2 text-[10px] font-bold border rounded-lg transition-all ${tipoPresente === 'pix' ? 'border-[var(--color-green3)] bg-green-50 text-[var(--color-green3)]' : 'border-gray-200 text-gray-400'}`}>
-                    VIA PIX
-                  </button>
-                  <button onClick={() => setTipoPresente('compra')} className={`flex-1 py-2 text-[10px] font-bold border rounded-lg transition-all ${tipoPresente === 'compra' ? 'border-[var(--color-green3)] bg-green-50 text-[var(--color-green3)]' : 'border-gray-200 text-gray-400'}`}>
-                    IR AO SITE
-                  </button>
-                </div>
+                
+                {/* SUB-ABAS: Ocultas se for COTA */}
+                {!produtoSelecionado?.cota && (
+                  <div className="flex gap-2 mb-4">
+                    <button onClick={() => setTipoPresente('pix')} className={`flex-1 py-2 text-[10px] font-bold border rounded-lg transition-all ${tipoPresente === 'pix' ? 'border-[var(--color-green3)] bg-green-50 text-[var(--color-green3)]' : 'border-gray-200 text-gray-400'}`}>
+                      VIA PIX
+                    </button>
+                    <button onClick={() => setTipoPresente('compra')} className={`flex-1 py-2 text-[10px] font-bold border rounded-lg transition-all ${tipoPresente === 'compra' ? 'border-[var(--color-green3)] bg-green-50 text-[var(--color-green3)]' : 'border-gray-200 text-gray-400'}`}>
+                      IR AO SITE
+                    </button>
+                  </div>
+                )}
 
-                {tipoPresente === 'pix' && (
+                {/* VISÃO PIX */}
+                {(tipoPresente === 'pix' || produtoSelecionado?.cota) && (
                   <div className="flex flex-col items-center">
                     <div className="bg-gray-50 p-3 rounded-xl border border-dashed border-gray-300 mb-3 w-full flex flex-col items-center">
                       <img src="/QR CODE.jpg" alt="QR Code" className="w-32 h-32 object-contain" />
@@ -257,7 +269,8 @@ function Presentes() {
                   </div>
                 )}
 
-                {tipoPresente === 'compra' && (
+                {/* VISÃO IR AO SITE (Apenas produtos normais) */}
+                {!produtoSelecionado?.cota && tipoPresente === 'compra' && (
                   <div className="flex flex-col items-center">
                     <div onClick={copiarEndereco} className="w-full bg-orange-50 border border-orange-100 p-3 rounded-xl mb-4 cursor-pointer hover:bg-orange-100 transition-all">
                       <div className="flex items-start gap-2">
