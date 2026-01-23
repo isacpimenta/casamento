@@ -2,16 +2,15 @@ import { ShoppingCart, Heart, Copy, CheckCircle, X, Gift, ExternalLink, MapPin, 
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 
-// --- CORREÇÃO: Adicionado onSnapshot, setDoc e doc que faltavam nas importações ---
-import { collection, addDoc, query, where, getDocs, updateDoc, doc, onSnapshot, setDoc } from 'firebase/firestore';
+// Firebase imports
+import { collection, onSnapshot, setDoc, doc } from 'firebase/firestore';
 import { db } from '../firebase.js';
 
-// --- SEUS DADOS ---
+// --- CONFIGURAÇÕES ---
 const chavePix = "d105ae1a-f575-4bbe-9b60-bc5a6d8d0530";
 const telefoneDono = "5521966630496";
 const enderecoEntrega = "Rua Topázios, S/N, Vila Sarapuí, Duque de Caxias - RJ, CEP 25050-007"; 
 
-// Lista atualizada conforme sua nova imagem (Alexa é o 27)
 const produtos = [
   { id: 1, nome: 'Mesa de jantar Vezzo', preco: '1.699,00', imagem: 'https://api.vezzomoveis.com.br/wp-content/uploads/2025/08/1756152685314-8608bda9-9255-4ede-a166-d78709545e6e.jpg', link: 'https://vezzomoveis.com.br/p/mesa-de-jantar-pedro-120x80cm-com-4-cadeiras-2' },
   { id: 2, nome: 'Batedeira Brastemp ou Electrolux', preco: '589,99', imagem: 'https://http2.mlstatic.com/D_NQ_NP_2X_729765-MLB93922643864_102025-F-batedeira-planetaria-electrolux-750w-cinza-inox-5l-ekm40.webp', link: 'https://produto.mercadolivre.com.br/MLB-3420538594-batedeira-planetaria-electrolux-750w-cinza-inox-5l-ekm40-_JM' },
@@ -54,7 +53,6 @@ function Presentes() {
   const [feedbackEndereco, setFeedbackEndereco] = useState(false);
   const [presentesStatus, setPresentesStatus] = useState({});
 
-  // Monitorar presentes ganhos em tempo real
   useEffect(() => {
     const unsub = onSnapshot(collection(db, "presentes"), (snapshot) => {
       const mapStatus = {};
@@ -73,7 +71,7 @@ function Presentes() {
     }
 
     try {
-      // Só cria o documento de bloqueio se NÃO for uma cota de lua de mel
+      // 1. Bloqueia o item no Firebase
       if (!produtoSelecionado.cota) {
         await setDoc(doc(db, "presentes", String(produtoSelecionado.id)), {
           comprador: nomeConvidado,
@@ -83,20 +81,28 @@ function Presentes() {
         });
       }
 
+      // 2. Monta a mensagem completa com Link
       const saudacao = "Olá Matheus e Débora!";
-      const mensagem = `${saudacao} Acabei de escolher o presente: *${produtoSelecionado.nome}* (${metodo}).\n\nMeu nome é: *${nomeConvidado}*. 🎁`;
-      const url = `https://api.whatsapp.com/send?phone=${telefoneDono}&text=${encodeURIComponent(mensagem)}`;
-      
-      window.open(url, '_blank');
-      if (metodo === "Compra em Loja Externa" && produtoSelecionado.link) {
-        window.open(produtoSelecionado.link, '_blank');
-      }
+      const baseMsg = `${saudacao}\n\n` +
+                      `🎁 *Presente:* ${produtoSelecionado.nome}\n` +
+                      `💰 *Valor:* R$ ${produtoSelecionado.preco}\n` +
+                      `👤 *Convidado:* ${nomeConvidado}\n` +
+                      `📍 *Ação:* ${metodo}`;
 
+      const mensagemFinal = produtoSelecionado.link 
+        ? `${baseMsg}\n\n🔗 *Link do Produto:* ${produtoSelecionado.link}`
+        : baseMsg;
+
+      const urlZap = `https://api.whatsapp.com/send?phone=${telefoneDono}&text=${encodeURIComponent(mensagemFinal)}`;
+      
+      // 3. Abre o WhatsApp e limpa
+      window.open(urlZap, '_blank');
       setModalPixAberto(false);
       setNomeConvidado('');
+
     } catch (error) {
       console.error(error);
-      alert("Erro ao confirmar. Tente novamente.");
+      alert("Erro ao confirmar reserva.");
     }
   };
 
@@ -129,7 +135,6 @@ function Presentes() {
 
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4 w-full max-w-4xl">
         {produtos.map((produto) => {
-          // Lógica: Se for cota, nunca bloqueia. Se não for cota, verifica se tem comprador.
           const ganhador = !produto.cota && presentesStatus[produto.id];
 
           return (
@@ -154,13 +159,12 @@ function Presentes() {
                   <div className="w-full bg-green-50 border border-green-100 text-green-700 py-2 px-1 rounded-lg flex items-center justify-center gap-1">
                     <CheckCircle size={14} className="text-green-500" />
                     <span className="font-rubik font-bold text-[10px] uppercase truncate">
-                      Ganho por: {ganhador}
+                      Reservado por: {ganhador}
                     </span>
                   </div>
                 ) : (
-                  <button onClick={() => abrirOpcaoPresentear(produto)} className="w-full bg-[#8F9E78] hover:bg-[#7A8965] text-white py-2 px-3 rounded-lg flex items-center justify-center gap-2 transition-colors shadow-sm">
-                    <Gift size={16} />
-                    <span className="font-rubik font-bold text-sm">Presentear</span>
+                  <button onClick={() => abrirOpcaoPresentear(produto)} className="w-full bg-[#8F9E78] hover:bg-[#7A8965] text-white py-2 px-3 rounded-lg flex items-center justify-center gap-2 transition-colors shadow-sm font-bold text-sm">
+                    <Gift size={16} /> Presentear
                   </button>
                 )}
               </div>
@@ -170,24 +174,25 @@ function Presentes() {
       </div>
 
       <button onClick={() => navigate("/")} className="mt-12 flex items-center gap-2 text-[var(--color-green3)] hover:text-[#6b7a55] font-rubik transition-colors">
-        <Heart size={18} />
-        Voltar para o convite
+        <Heart size={18} /> Voltar para o convite
       </button>
 
+      {/* --- MODAL --- */}
       {modalPixAberto && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm relative flex flex-col items-center">
+          <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm relative flex flex-col items-center animate-[scaleUp_0.3s_ease-out]">
+            
             <button onClick={() => setModalPixAberto(false)} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 bg-gray-100 p-1 rounded-full">
               <X size={20} />
             </button>
 
-            <h2 className="font-great-vibes text-3xl text-[var(--color-green3)] mb-1 text-center">Muito Obrigado!</h2>
+            <h2 className="font-great-vibes text-3xl text-[var(--color-green3)] mb-1 text-center">Como presentear?</h2>
             <p className="text-gray-500 text-sm text-center mb-4 font-rubik leading-tight">
-              Presente: <strong className="text-gray-800">{produtoSelecionado?.nome}</strong>
+              Item: <strong className="text-gray-800">{produtoSelecionado?.nome}</strong>
             </p>
 
             <div className="w-full mb-4">
-              <label className="text-[10px] uppercase font-bold text-gray-400 mb-1 block">Seu Nome:</label>
+              <label className="text-[10px] uppercase font-bold text-gray-400 mb-1 block px-1">Seu Nome:</label>
               <input 
                 type="text" 
                 value={nomeConvidado}
@@ -198,45 +203,73 @@ function Presentes() {
             </div>
 
             <div className="flex w-full bg-gray-100 p-1 rounded-lg mb-6">
-              <button onClick={() => setTipoPresente('pix')} className={`flex-1 py-2 text-sm font-medium rounded-md ${tipoPresente === 'pix' ? 'bg-white text-[var(--color-green3)]' : 'text-gray-400'}`}>
-                Enviar Pix
+              <button onClick={() => setTipoPresente('reservar')} className={`flex-1 py-2 text-xs font-bold rounded-md transition-all ${tipoPresente === 'reservar' ? 'bg-white text-[var(--color-green3)] shadow-sm' : 'text-gray-400'}`}>
+                RESERVAR ITEM
               </button>
-              <button onClick={() => setTipoPresente('compra')} className={`flex-1 py-2 text-sm font-medium rounded-md ${tipoPresente === 'compra' ? 'bg-white text-[var(--color-green3)]' : 'text-gray-400'}`}>
-                Comprar Item
+              <button onClick={() => setTipoPresente('pix')} className={`flex-1 py-2 text-xs font-bold rounded-md transition-all ${tipoPresente !== 'reservar' ? 'bg-white text-[var(--color-green3)] shadow-sm' : 'text-gray-400'}`}>
+                COMPRAR AGORA
               </button>
             </div>
 
-            {tipoPresente === 'pix' ? (
-              <div className="w-full flex flex-col items-center">
-                <div className="bg-gray-50 p-4 rounded-xl border border-dashed border-gray-300 mb-4 w-full flex flex-col items-center">
-                   <img src="/QR CODE.jpg" alt="QR Code Pix" className="w-40 h-40 object-contain" />
-                   <p className="text-xs text-gray-400 mt-2 font-mono">Valor: R$ {produtoSelecionado?.preco}</p>
-                </div>
-                <div className="w-full flex items-center gap-2 bg-gray-100 p-3 rounded-lg border border-gray-200 mb-4">
-                  <span className="text-xs font-mono text-gray-600 truncate flex-1">{chavePix}</span>
-                  <button onClick={copiarPix} className="bg-[var(--color-green3)] text-white p-2 rounded-md">
-                    {feedbackCopia ? <CheckCircle size={18} /> : <Copy size={18} />}
-                  </button>
-                </div>
-                <button onClick={() => handleConfirmarPresente("Contribuição via Pix")} className="w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition">
-                  <MessageCircle size={18} /> Confirmar e Avisar Matheus
+            {/* CONTEÚDO RESERVAR */}
+            {tipoPresente === 'reservar' && (
+              <div className="w-full flex flex-col items-center animate-[fadeIn_0.3s_ease-out]">
+                <p className="text-xs text-gray-500 text-center mb-6 px-2">
+                  Escolha esta opção se for comprar em uma loja física depois. O item será bloqueado na lista agora.
+                </p>
+                <button onClick={() => handleConfirmarPresente("Reserva para compra física")} className="w-full bg-[#8F9E78] text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 shadow-md">
+                  <Lock size={18} /> Confirmar Reserva e Avisar
                 </button>
               </div>
-            ) : (
-              <div className="w-full flex flex-col items-center">
-                <div onClick={copiarEndereco} className="w-full bg-orange-50 border border-orange-100 p-4 rounded-xl mb-4 cursor-pointer">
-                  <div className="flex items-start gap-3">
-                    <MapPin className="text-orange-400 shrink-0 mt-1" size={20} />
-                    <div className="flex-1">
-                      <p className="text-[10px] text-orange-400 font-bold uppercase">Endereço de Entrega</p>
-                      <p className="text-xs text-gray-700 leading-tight">{enderecoEntrega}</p>
-                    </div>
-                    {feedbackEndereco ? <CheckCircle size={16} className="text-green-500"/> : <Copy size={16} className="text-orange-300" />}
-                  </div>
+            )}
+
+            {/* CONTEÚDO COMPRAR AGORA */}
+            {tipoPresente !== 'reservar' && (
+              <div className="w-full animate-[fadeIn_0.3s_ease-out]">
+                <div className="flex gap-2 mb-4">
+                  <button onClick={() => setTipoPresente('pix')} className={`flex-1 py-2 text-[10px] font-bold border rounded-lg transition-all ${tipoPresente === 'pix' ? 'border-[var(--color-green3)] bg-green-50 text-[var(--color-green3)]' : 'border-gray-200 text-gray-400'}`}>
+                    VIA PIX
+                  </button>
+                  <button onClick={() => setTipoPresente('compra')} className={`flex-1 py-2 text-[10px] font-bold border rounded-lg transition-all ${tipoPresente === 'compra' ? 'border-[var(--color-green3)] bg-green-50 text-[var(--color-green3)]' : 'border-gray-200 text-gray-400'}`}>
+                    IR AO SITE
+                  </button>
                 </div>
-                <button onClick={() => handleConfirmarPresente("Compra em Loja Externa")} className="w-full bg-[var(--color-green3)] text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-[#6b7a55] transition">
-                  Confirmar e Ir para a Loja <ExternalLink size={18} />
-                </button>
+
+                {tipoPresente === 'pix' && (
+                  <div className="flex flex-col items-center">
+                    <div className="bg-gray-50 p-3 rounded-xl border border-dashed border-gray-300 mb-3 w-full flex flex-col items-center">
+                      <img src="/QR CODE.jpg" alt="QR Code" className="w-32 h-32 object-contain" />
+                      <p className="text-[10px] text-gray-400 mt-1 font-mono">Valor: R$ {produtoSelecionado?.preco}</p>
+                    </div>
+                    <div className="w-full flex items-center gap-2 bg-gray-100 p-2 rounded-lg mb-4 border border-gray-200">
+                      <span className="text-[10px] font-mono text-gray-600 truncate flex-1">{chavePix}</span>
+                      <button onClick={copiarPix} className="bg-[var(--color-green3)] text-white p-1.5 rounded-md">
+                        {feedbackCopia ? <CheckCircle size={16} /> : <Copy size={16} />}
+                      </button>
+                    </div>
+                    <button onClick={() => handleConfirmarPresente("Contribuição via Pix")} className="w-full bg-green-600 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 shadow-md">
+                      <MessageCircle size={18} /> Confirmar e Avisar
+                    </button>
+                  </div>
+                )}
+
+                {tipoPresente === 'compra' && (
+                  <div className="flex flex-col items-center">
+                    <div onClick={copiarEndereco} className="w-full bg-orange-50 border border-orange-100 p-3 rounded-xl mb-4 cursor-pointer hover:bg-orange-100 transition-all">
+                      <div className="flex items-start gap-2">
+                        <MapPin className="text-orange-400 shrink-0 mt-1" size={16} />
+                        <div className="flex-1">
+                          <p className="text-[9px] text-orange-400 font-bold uppercase">Endereço de Entrega (Copiar)</p>
+                          <p className="text-[11px] text-gray-700 leading-tight">{enderecoEntrega}</p>
+                        </div>
+                      </div>
+                    </div>
+                    <p className="text-[10px] text-gray-400 text-center mb-4">Bloquearemos o item e enviaremos o link do produto para o seu WhatsApp!</p>
+                    <button onClick={() => handleConfirmarPresente("Compra em Loja Externa")} className="w-full bg-[var(--color-green3)] text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 shadow-md">
+                      <MessageCircle size={18} /> Confirmar e Receber Link
+                    </button>
+                  </div>
+                )}
               </div>
             )}
           </div>
