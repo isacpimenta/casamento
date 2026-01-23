@@ -70,8 +70,22 @@ function Presentes() {
       return;
     }
 
+    // 1. Criamos a mensagem antes do await
+    const saudacao = "Olá Matheus e Débora!";
+    const baseMsg = `${saudacao}\n\n` +
+                    `🎁 *Presente:* ${produtoSelecionado.nome}\n` +
+                    `💰 *Valor:* R$ ${produtoSelecionado.preco}\n` +
+                    `👤 *Convidado:* ${nomeConvidado}\n` +
+                    `📍 *Ação:* ${metodo}`;
+
+    const mensagemFinal = produtoSelecionado.link 
+      ? `${baseMsg}\n\n🔗 *Link do Produto:* ${produtoSelecionado.link}`
+      : baseMsg;
+
+    const urlZap = `https://api.whatsapp.com/send?phone=${telefoneDono}&text=${encodeURIComponent(mensagemFinal)}`;
+
     try {
-      // 1. Bloqueia o item no Firebase
+      // 2. Bloqueia o item no Firebase
       if (!produtoSelecionado.cota) {
         await setDoc(doc(db, "presentes", String(produtoSelecionado.id)), {
           comprador: nomeConvidado,
@@ -81,22 +95,14 @@ function Presentes() {
         });
       }
 
-      // 2. Monta a mensagem completa com Link
-      const saudacao = "Olá Matheus e Débora!";
-      const baseMsg = `${saudacao}\n\n` +
-                      `🎁 *Presente:* ${produtoSelecionado.nome}\n` +
-                      `💰 *Valor:* R$ ${produtoSelecionado.preco}\n` +
-                      `👤 *Convidado:* ${nomeConvidado}\n` +
-                      `📍 *Ação:* ${metodo}`;
+      // 3. SOLUÇÃO PARA IOS: 
+      // Em vez de window.open, usamos window.location para garantir o redirecionamento
+      // ou tentamos o redirecionamento direto.
+      // Truque para enganar o bloqueador do Safari
+      const novaAba = window.open('', '_blank');
+      novaAba.location.href = urlZap;
 
-      const mensagemFinal = produtoSelecionado.link 
-        ? `${baseMsg}\n\n🔗 *Link do Produto:* ${produtoSelecionado.link}`
-        : baseMsg;
-
-      const urlZap = `https://api.whatsapp.com/send?phone=${telefoneDono}&text=${encodeURIComponent(mensagemFinal)}`;
-      
-      // 3. Abre o WhatsApp e limpa
-      window.open(urlZap, '_blank');
+      // Limpa os estados
       setModalPixAberto(false);
       setNomeConvidado('');
 
