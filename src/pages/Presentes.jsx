@@ -43,14 +43,13 @@ const produtos = [
   { id: 30, nome: 'Armário de cozinha 2m x 1,40m', preco: '950,00', imagem: 'https://http2.mlstatic.com/D_NQ_NP_2X_756815-MLB104143512703_012026-F.webp', link: 'https://lista.mercadolivre.com.br/armario-cozinha-2m' },
   { id: 31, nome: 'Cafeteira', preco: '190,00', imagem: 'https://http2.mlstatic.com/D_NQ_NP_2X_802146-MLA100024540029_122025-F.webp', link: 'https://lista.mercadolivre.com.br/cafeteira-electrolux' },
   { id: 32, nome: 'Espelho orgânico corpo inteiro', preco: '380,00', imagem: 'https://http2.mlstatic.com/D_NQ_NP_2X_936790-MLA96100703939_102025-F.webp', link: 'https://lista.mercadolivre.com.br/espelho-organico-corpo-inteiro' },
-  { id: 33, nome: 'Climatizador 6 litros', preco: '386,00', imagem: 'https://http2.mlstatic.com/D_NQ_NP_2X_823184-MLA99987723357_112025-F.webp', link: 'https://lista.mercadolivre.com.br/climatizador-6-litros' },
+  { id: 33, nome: 'Climatizador 16 litros', preco: '448,32', imagem: 'https://http2.mlstatic.com/D_NQ_NP_2X_843341-MLA99946710327_112025-F.webp', link: 'https://lista.mercadolivre.com.br/climatizador-16-litros' },
   { id: 34, nome: 'Kit 2 mesas de cabeceira com gaveta', preco: '380,00', imagem: 'https://http2.mlstatic.com/D_NQ_NP_2X_951710-MLA99535765652_122025-F.webp', link: 'https://lista.mercadolivre.com.br/kit-mesa-de-cabeceira-gaveta' },
-  { id: 35, nome: 'Mesa de escrivaninha com gaveta', preco: '600,00', imagem: 'https://http2.mlstatic.com/D_NQ_NP_2X_652711-MLA99939260445_112025-F.webp', link: 'https://lista.mercadolivre.com.br/escrivaninha-com-gaveta' },
-  { id: 36, nome: 'Aparador de cabeceira', preco: '199,00', imagem: 'https://http2.mlstatic.com/D_NQ_NP_2X_719085-MLA99984650031_112025-F.webp', link: 'https://lista.mercadolivre.com.br/aparador-cabeceira' },
-  { id: 37, nome: 'Cota Lua de Mel - R$ 2.000', preco: '2.000,00', imagem: '/ouro.png', cota: true },
-  { id: 38, nome: 'Cota Lua de Mel - R$ 1.500', preco: '1.500,00', imagem: '/prata.png', cota: true },
-  { id: 39, nome: 'Cota Lua de Mel - R$ 1.000', preco: '1.000,00', imagem: '/bronze.png', cota: true },
-  { id: 40, nome: 'Cota Lua de Mel - R$ 500', preco: '500,00', imagem: '/apoio.png', cota: true },
+  { id: 35, nome: 'Mesa de escrivaninha com cadeira', preco: '600,00', imagem: 'https://http2.mlstatic.com/D_NQ_NP_2X_652711-MLA99939260445_112025-F.webp', link: 'https://lista.mercadolivre.com.br/escrivaninha-com-gaveta' },
+  { id: 36, nome: 'Cota Lua de Mel - R$ 2.000', preco: '2.000,00', imagem: '/ouro.png', cota: true },
+  { id: 37, nome: 'Cota Lua de Mel - R$ 1.500', preco: '1.500,00', imagem: '/prata.png', cota: true },
+  { id: 38, nome: 'Cota Lua de Mel - R$ 1.000', preco: '1.000,00', imagem: '/bronze.png', cota: true },
+  { id: 39, nome: 'Cota Lua de Mel - R$ 500', preco: '500,00', imagem: '/apoio.png', cota: true },
 ];
 
 function Presentes() {
@@ -169,9 +168,19 @@ function Presentes() {
         })}
       </div>
 
-      <button onClick={() => navigate("/")} className="mt-12 flex items-center gap-2 text-[var(--color-green3)] hover:text-[#6b7a55] font-rubik transition-colors">
-        <Heart size={18} /> Voltar para o convite
-      </button>
+      {/* Botão Fixo no Rodapé */}
+      <div className="fixed bottom-0 left-0 w-full p-4 flex justify-center bg-gradient-to-t from-[#F0F7F4] via-[#F0F7F4]/90 to-transparent z-40 pointer-events-none">
+        <button 
+          onClick={() => navigate("/")} 
+          className="pointer-events-auto flex items-center gap-2 bg-white/80 backdrop-blur-md px-6 py-3 rounded-full shadow-lg border border-[var(--color-green3)]/20 text-[var(--color-green3)] hover:bg-[var(--color-green3)] hover:text-white font-rubik font-bold transition-all duration-300 active:scale-95"
+        >
+          <Heart size={18} className="animate-pulse" />
+          Voltar para o convite
+        </button>
+      </div>
+
+      {/* Spacer para o conteúdo não ficar escondido atrás do botão fixo */}
+      <div className="h-20" />
 
       {modalAberto && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 text-center">
