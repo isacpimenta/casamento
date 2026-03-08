@@ -43,7 +43,7 @@ function App() {
 
         <div className="flex justify-center items-center gap-4 my-1">
           <p className="font-rubik text-gray-600 font-medium">NOV</p>
-          <h1 className="font-rubik text-5xl md:text-6xl font-bold text-gray-800">19</h1>
+          <h1 className="font-rubik text-5xl md:text-6xl font-bold text-gray-800">12</h1>
           <p className="font-rubik text-gray-600 font-medium">2026</p>
         </div>
 
