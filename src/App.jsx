@@ -6,7 +6,7 @@ function App() {
 
   return (
     // Aumentei o pb-20 para empurrar o conteúdo inferior para cima
-    <div className="relative min-h-screen w-full overflow-hidden bg-white flex flex-col items-center justify-between pt-5 pb-10 md:pt-10 md:pb-10 px-6">
+    <div className="relative min-h-dvh w-full overflow-hidden bg-white flex flex-col items-center justify-between pt-5 pb-10 md:pt-10 md:pb-10 px-6">
       
       {/* Ramos Decorativos */}
       <img 
