@@ -1,4 +1,4 @@
-import { ShoppingCart, Heart, Copy, CheckCircle, X, Gift, ExternalLink, MapPin, MessageCircle, Lock } from 'lucide-react';
+import { Heart, CheckCircle, X, Gift, MessageCircle, Lock, Copy } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 
@@ -9,7 +9,6 @@ import { db } from '../firebase.js';
 // --- CONFIGURAÇÕES ---
 const chavePix = "matheusabreu021@gmail.com";
 const telefoneDono = "5521968237181";
-const enderecoEntrega = "Rua Topázios, S/N, Vila Sarapuí, Duque de Caxias - RJ, CEP 25050-007"; 
 
 const produtos = [
   { id: 1, nome: 'Mesa de jantar', preco: '1.699,00', imagem: 'https://api.vezzomoveis.com.br/wp-content/uploads/2025/08/1756152685314-8608bda9-9255-4ede-a166-d78709545e6e.jpg', link: 'https://vezzomoveis.com.br/p/mesa-de-jantar-pedro-120x80cm-com-4-cadeiras-2' },
@@ -56,14 +55,10 @@ const produtos = [
 
 function Presentes() {
   const navigate = useNavigate();
-  
-  const [modalPixAberto, setModalPixAberto] = useState(false);
+  const [modalAberto, setModalAberto] = useState(false);
   const [produtoSelecionado, setProdutoSelecionado] = useState(null);
-  const [tipoPresente, setTipoPresente] = useState('pix');
   const [nomeConvidado, setNomeConvidado] = useState('');
-  
   const [feedbackCopia, setFeedbackCopia] = useState(false);
-  const [feedbackEndereco, setFeedbackEndereco] = useState(false);
   const [presentesStatus, setPresentesStatus] = useState({});
 
   useEffect(() => {
@@ -77,13 +72,12 @@ function Presentes() {
     return () => unsub();
   }, []);
 
-  const handleConfirmarPresente = async (metodo) => {
+  const handleConfirmar = async (metodo) => {
     if (!nomeConvidado.trim()) {
       alert("Por favor, digite seu nome! ❤️");
       return;
     }
 
-    // 1. Prepara a URL antes de qualquer await (Crítico para iOS)
     const saudacao = "Olá Matheus e Débora!";
     const baseMsg = `${saudacao}\n\n` +
                     `🎁 *Presente:* ${produtoSelecionado.nome}\n` +
@@ -92,13 +86,12 @@ function Presentes() {
                     `📍 *Ação:* ${metodo}`;
 
     const mensagemFinal = produtoSelecionado.link 
-      ? `${baseMsg}\n\n🔗 *Link do Produto:* ${produtoSelecionado.link}`
+      ? `${baseMsg}\n\n🔗 *Sugestão de Link:* ${produtoSelecionado.link}`
       : baseMsg;
 
     const urlZap = `https://api.whatsapp.com/send?phone=${telefoneDono}&text=${encodeURIComponent(mensagemFinal)}`;
 
     try {
-      // 2. Bloqueia o item no Firebase (Apenas se não for cota)
       if (!produtoSelecionado.cota) {
         await setDoc(doc(db, "presentes", String(produtoSelecionado.id)), {
           comprador: nomeConvidado,
@@ -107,36 +100,24 @@ function Presentes() {
           data: new Date()
         });
       }
-
-      // 3. Redirecionamento compatível com Safari/iOS
       window.location.href = urlZap;
-
-      setModalPixAberto(false);
+      setModalAberto(false);
       setNomeConvidado('');
-
     } catch (error) {
       console.error(error);
-      alert("Erro ao confirmar reserva.");
+      alert("Erro ao confirmar.");
     }
   };
 
-  const abrirOpcaoPresentear = (produto) => {
+  const abrirModal = (produto) => {
     setProdutoSelecionado(produto);
-    // Se for cota, forçamos o estado para 'pix' para esconder a aba de reserva
-    setTipoPresente('pix');
-    setModalPixAberto(true);
+    setModalAberto(true);
   };
 
   const copiarPix = () => {
     navigator.clipboard.writeText(chavePix);
     setFeedbackCopia(true);
     setTimeout(() => setFeedbackCopia(false), 2500);
-  };
-
-  const copiarEndereco = () => {
-    navigator.clipboard.writeText(enderecoEntrega);
-    setFeedbackEndereco(true);
-    setTimeout(() => setFeedbackEndereco(false), 2500);
   };
 
   return (
@@ -178,7 +159,7 @@ function Presentes() {
                     </span>
                   </div>
                 ) : (
-                  <button onClick={() => abrirOpcaoPresentear(produto)} className="w-full bg-[#8F9E78] hover:bg-[#7A8965] text-white py-2 px-3 rounded-lg flex items-center justify-center gap-2 transition-colors shadow-sm font-bold text-sm">
+                  <button onClick={() => abrirModal(produto)} className="w-full bg-[#8F9E78] hover:bg-[#7A8965] text-white py-2 px-3 rounded-lg flex items-center justify-center gap-2 transition-colors shadow-sm font-bold text-sm">
                     <Gift size={16} /> Presentear
                   </button>
                 )}
@@ -192,22 +173,21 @@ function Presentes() {
         <Heart size={18} /> Voltar para o convite
       </button>
 
-      {/* --- MODAL --- */}
-      {modalPixAberto && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+      {modalAberto && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 text-center">
           <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm relative flex flex-col items-center animate-[scaleUp_0.3s_ease-out]">
             
-            <button onClick={() => setModalPixAberto(false)} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 bg-gray-100 p-1 rounded-full">
+            <button onClick={() => setModalAberto(false)} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 bg-gray-100 p-1 rounded-full">
               <X size={20} />
             </button>
 
-            <h2 className="font-great-vibes text-3xl text-[var(--color-green3)] mb-1 text-center">Como presentear?</h2>
-            <p className="text-gray-500 text-sm text-center mb-4 font-rubik leading-tight">
+            <h2 className="font-great-vibes text-3xl text-[var(--color-green3)] mb-1">Como presentear?</h2>
+            <p className="text-gray-500 text-sm mb-4 font-rubik leading-tight">
               Item: <strong className="text-gray-800">{produtoSelecionado?.nome}</strong>
             </p>
 
-            <div className="w-full mb-4">
-              <label className="text-[10px] uppercase font-bold text-gray-400 mb-1 block px-1">Seu Nome:</label>
+            <div className="w-full mb-6">
+              <label className="text-[10px] uppercase font-bold text-gray-400 mb-1 block px-1 text-left">Seu Nome:</label>
               <input 
                 type="text" 
                 value={nomeConvidado}
@@ -217,89 +197,34 @@ function Presentes() {
               />
             </div>
 
-            {/* SELETOR DE ABAS: Oculto se for COTA */}
-            {!produtoSelecionado?.cota && (
-              <div className="flex w-full bg-gray-100 p-1 rounded-lg mb-6">
-                <button 
-                  onClick={() => setTipoPresente('reservar')} 
-                  className={`flex-1 py-2 text-xs font-bold rounded-md transition-all ${tipoPresente === 'reservar' ? 'bg-white text-[var(--color-green3)] shadow-sm' : 'text-gray-400'}`}
-                >
-                  RESERVAR ITEM
-                </button>
-                <button 
-                  onClick={() => setTipoPresente('pix')} 
-                  className={`flex-1 py-2 text-xs font-bold rounded-md transition-all ${tipoPresente !== 'reservar' ? 'bg-white text-[var(--color-green3)] shadow-sm' : 'text-gray-400'}`}
-                >
-                  COMPRAR AGORA
-                </button>
-              </div>
-            )}
-
-            {/* CONTEÚDO RESERVAR (Apenas produtos normais) */}
-            {!produtoSelecionado?.cota && tipoPresente === 'reservar' && (
-              <div className="w-full flex flex-col items-center animate-[fadeIn_0.3s_ease-out]">
-                <p className="text-xs text-gray-500 text-center mb-6 px-2">
-                  Escolha esta opção se for comprar em uma loja física depois. O item será bloqueado na lista agora.
-                </p>
-                <button onClick={() => handleConfirmarPresente("Reserva para compra física")} className="w-full bg-[#8F9E78] text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 shadow-md">
-                  <Lock size={18} /> Confirmar Reserva e Avisar
-                </button>
-              </div>
-            )}
-
-            {/* CONTEÚDO COMPRAR AGORA / PIX (Para todos, mas com sub-abas apenas para produtos normais) */}
-            {(produtoSelecionado?.cota || tipoPresente !== 'reservar') && (
+            {/* SE FOR COTA LUA DE MEL */}
+            {produtoSelecionado?.cota ? (
               <div className="w-full animate-[fadeIn_0.3s_ease-out]">
-                
-                {/* SUB-ABAS: Ocultas se for COTA */}
-                {!produtoSelecionado?.cota && (
-                  <div className="flex gap-2 mb-4">
-                    <button onClick={() => setTipoPresente('pix')} className={`flex-1 py-2 text-[10px] font-bold border rounded-lg transition-all ${tipoPresente === 'pix' ? 'border-[var(--color-green3)] bg-green-50 text-[var(--color-green3)]' : 'border-gray-200 text-gray-400'}`}>
-                      VIA PIX
-                    </button>
-                    <button onClick={() => setTipoPresente('compra')} className={`flex-1 py-2 text-[10px] font-bold border rounded-lg transition-all ${tipoPresente === 'compra' ? 'border-[var(--color-green3)] bg-green-50 text-[var(--color-green3)]' : 'border-gray-200 text-gray-400'}`}>
-                      IR AO SITE
-                    </button>
-                  </div>
-                )}
-
-                {/* VISÃO PIX */}
-                {(tipoPresente === 'pix' || produtoSelecionado?.cota) && (
-                  <div className="flex flex-col items-center">
-                    <div className="bg-gray-50 p-3 rounded-xl border border-dashed border-gray-300 mb-3 w-full flex flex-col items-center">
-                      <img src="/QR CODE.jpeg" alt="QR Code" className="w-32 h-32 object-contain" />
-                      <p className="text-[10px] text-gray-400 mt-1 font-mono">Valor: R$ {produtoSelecionado?.preco}</p>
-                    </div>
-                    <div className="w-full flex items-center gap-2 bg-gray-100 p-2 rounded-lg mb-4 border border-gray-200">
-                      <span className="text-[10px] font-mono text-gray-600 truncate flex-1">{chavePix}</span>
-                      <button onClick={copiarPix} className="bg-[var(--color-green3)] text-white p-1.5 rounded-md">
-                        {feedbackCopia ? <CheckCircle size={16} /> : <Copy size={16} />}
-                      </button>
-                    </div>
-                    <button onClick={() => handleConfirmarPresente("Contribuição via Pix")} className="w-full bg-green-600 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 shadow-md">
-                      <MessageCircle size={18} /> Confirmar e Avisar
-                    </button>
-                  </div>
-                )}
-
-                {/* VISÃO IR AO SITE (Apenas produtos normais) */}
-                {!produtoSelecionado?.cota && tipoPresente === 'compra' && (
-                  <div className="flex flex-col items-center">
-                    <div onClick={copiarEndereco} className="w-full bg-orange-50 border border-orange-100 p-3 rounded-xl mb-4 cursor-pointer hover:bg-orange-100 transition-all">
-                      <div className="flex items-start gap-2">
-                        <MapPin className="text-orange-400 shrink-0 mt-1" size={16} />
-                        <div className="flex-1">
-                          <p className="text-[9px] text-orange-400 font-bold uppercase">Endereço de Entrega (Copiar)</p>
-                          <p className="text-[11px] text-gray-700 leading-tight">{enderecoEntrega}</p>
-                        </div>
-                      </div>
-                    </div>
-                    <p className="text-[10px] text-gray-400 text-center mb-4">Bloquearemos o item e enviaremos o link do produto para o seu WhatsApp!</p>
-                    <button onClick={() => handleConfirmarPresente("Compra em Loja Externa")} className="w-full bg-[var(--color-green3)] text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 shadow-md">
-                      <MessageCircle size={18} /> Confirmar e Receber Link
-                    </button>
-                  </div>
-                )}
+                <div className="bg-gray-50 p-3 rounded-xl border border-dashed border-gray-300 mb-3 flex flex-col items-center">
+                  <img src="/QR CODE.jpeg" alt="QR Code" className="w-32 h-32 object-contain" />
+                  <p className="text-[10px] text-gray-400 mt-1 font-mono">Valor sugerido: R$ {produtoSelecionado?.preco}</p>
+                </div>
+                <div className="w-full flex items-center gap-2 bg-gray-100 p-2 rounded-lg mb-4 border border-gray-200">
+                  <span className="text-[10px] font-mono text-gray-600 truncate flex-1">{chavePix}</span>
+                  <button onClick={copiarPix} className="bg-[var(--color-green3)] text-white p-1.5 rounded-md">
+                    {feedbackCopia ? <CheckCircle size={16} /> : <Copy size={16} />}
+                  </button>
+                </div>
+                <button onClick={() => handleConfirmar("Contribuição via Pix")} className="w-full bg-green-600 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 shadow-md">
+                  <MessageCircle size={18} /> Confirmar e Avisar no WhatsApp
+                </button>
+              </div>
+            ) : (
+              /* SE FOR PRODUTO FÍSICO */
+              <div className="w-full animate-[fadeIn_0.3s_ease-out]">
+                <div className="bg-green-50 p-4 rounded-xl mb-6">
+                  <p className="text-xs text-green-800 font-rubik leading-relaxed">
+                    Ao confirmar, o item será <strong>reservado</strong> na lista para você. Você poderá comprá-lo na loja que preferir.
+                  </p>
+                </div>
+                <button onClick={() => handleConfirmar("Reserva para compra física")} className="w-full bg-[#8F9E78] text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 shadow-md">
+                  <Lock size={18} /> Reservar e Avisar no WhatsApp
+                </button>
               </div>
             )}
           </div>
