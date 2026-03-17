@@ -14,7 +14,7 @@ function App() {
         src="/ramo1.png" 
         alt="" 
       />
-      <img 
+      <img
         className="absolute bottom-[-10%] left-[-30%] md:bottom-[-20%] md:left-[-15%] w-64 md:w-180 opacity-60 pointer-events-none rotate-12" 
         src="/ramo2.png" 
         alt="" 
@@ -49,7 +49,7 @@ function App() {
 
         <div className="flex flex-col items-center gap-2 w-full max-w-[300px]">
           <img className="h-8 object-contain" src="/flecha.png" alt="" />
-          <img className="w-full object-contain" src="/matdeba.png" alt="Matheus Abreu & Débora Senna" />
+          <img className="w-full object-contain" src="/debamat.png" alt="Matheus Abreu & Débora Senna" />
         </div>
       </div>
 
