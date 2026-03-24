@@ -74,7 +74,7 @@ function Presentes() {
     return () => unsub();
   }, []);
 
-  const handleConfirmar = async (metodo, destinatario) => {
+const handleConfirmar = async (metodo, destinatario) => {
     if (!nomeConvidado.trim()) {
       alert("Por favor, digite seu nome! ❤️");
       return;
@@ -96,20 +96,25 @@ function Presentes() {
     const urlZap = `https://api.whatsapp.com/send?phone=${telefone}&text=${encodeURIComponent(mensagemFinal)}`;
 
     try {
-      if (!produtoSelecionado.cota) {
-        await setDoc(doc(doc(db, "presentes", String(produtoSelecionado.id)), {
+      // CORREÇÃO AQUI: Removido o doc() duplicado e adicionada verificação
+      if (produtoSelecionado && !produtoSelecionado.cota) {
+        await setDoc(doc(db, "presentes", String(produtoSelecionado.id)), {
           comprador: nomeConvidado,
           produto: produtoSelecionado.nome,
           metodo: metodo,
           data: new Date()
-        }));
+        });
       }
-      window.location.href = urlZap;
+      
+      // Abre o WhatsApp
+      window.open(urlZap, '_blank'); 
+      
+      // Limpa os estados e fecha o modal
       setModalAberto(false);
       setNomeConvidado('');
     } catch (error) {
-      console.error(error);
-      alert("Erro ao confirmar.");
+      console.error("Erro detalhado do Firebase:", error);
+      alert("Erro ao confirmar. Verifique sua conexão ou as permissões do banco.");
     }
   };
 
@@ -185,58 +190,68 @@ function Presentes() {
 
       <div className="h-20" />
 
+      {/* Modal Mobile com Opções de WhatsApp */}
       {modalAberto && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 text-center text-slate-800">
-          <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm relative flex flex-col items-center animate-[scaleUp_0.3s_ease-out]">
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-slate-900/40 backdrop-blur-sm p-0 sm:p-4">
+          <div className="bg-white w-full max-w-md rounded-t-[32px] sm:rounded-[32px] p-8 shadow-2xl animate-in slide-in-from-bottom duration-300">
+            <div className="w-12 h-1.5 bg-slate-100 rounded-full mx-auto mb-6 sm:hidden" />
             
-            <button onClick={() => setModalAberto(false)} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 bg-gray-100 p-1 rounded-full">
-              <X size={20} />
-            </button>
-
-            <h2 className="font-great-vibes text-3xl text-[var(--color-green3)] mb-1 leading-tight">Confirmar Presente</h2>
-            <p className="text-gray-400 text-xs mb-4 font-rubik">Para quem você quer avisar?</p>
-
-            <div className="w-full mb-4">
-              <label className="text-[10px] uppercase font-bold text-gray-400 mb-1 block px-1 text-left">Seu Nome:</label>
-              <input 
-                type="text" 
-                value={nomeConvidado}
-                onChange={(e) => setNomeConvidado(e.target.value)}
-                placeholder="Ex: João e Maria"
-                className="w-full border border-gray-200 rounded-lg p-3 text-sm focus:outline-none focus:border-[var(--color-green3)]"
-              />
+            <div className="flex justify-between items-start mb-6">
+              <div>
+                <h2 className="text-2xl font-bold text-slate-800">Confirmar Presente</h2>
+                <p className="text-sm text-slate-400">Para quem você quer avisar?</p>
+              </div>
+              <button onClick={() => setModalAberto(false)} className="bg-slate-50 p-2 rounded-full text-slate-400"><X size={20}/></button>
             </div>
 
-            {produtoSelecionado?.cota && (
-              <div className="w-full mb-4">
-                <div className="bg-gray-50 p-3 rounded-xl border border-dashed border-gray-300 mb-2 flex flex-col items-center">
-                  <img src="/QR CODE.jpeg" alt="QR Code" className="w-24 h-24 object-contain" />
-                </div>
-                <div className="w-full flex items-center gap-2 bg-gray-100 p-2 rounded-lg border border-gray-200">
-                  <span className="text-[10px] font-mono text-gray-600 truncate flex-1">{chavePix}</span>
-                  <button onClick={copiarPix} className="bg-[var(--color-green3)] text-white p-1.5 rounded-md">
-                    {feedbackCopia ? <CheckCircle size={16} /> : <Copy size={16} />}
-                  </button>
-                </div>
+            <div className="bg-green1/5 border border-green1/10 rounded-2xl p-4 mb-6">
+              <p className="text-green3 font-semibold text-sm leading-tight">{produtoSelecionado?.nome}</p>
+            </div>
+
+            <div className="space-y-6">
+              <div>
+                <label className="text-[11px] font-bold text-slate-400 uppercase ml-1 tracking-wider">Seu nome ou apelido</label>
+                <input 
+                  type="text" 
+                  placeholder="Ex: Tio João, Amiga da Faculdade..."
+                  className="w-full bg-slate-50 border-2 border-transparent focus:border-green1 focus:bg-white rounded-xl p-4 outline-none transition-all mt-1"
+                  value={nomeConvidado}
+                  onChange={(e) => setNomeConvidado(e.target.value)}
+                />
               </div>
-            )}
 
-            <div className="grid grid-cols-2 gap-3 w-full">
-              <button 
-                onClick={() => handleConfirmar(produtoSelecionado?.cota ? "Cota via PIX" : "Reserva para compra física", "debora")}
-                className="flex flex-col items-center gap-1 bg-white border-2 border-green-100 text-[var(--color-green3)] py-3 rounded-xl font-bold transition-all shadow-sm active:scale-95"
-              >
-                <MessageCircle size={20} />
-                <span className="text-[10px] uppercase">Avisar Débora</span>
-              </button>
+              {produtoSelecionado?.cota && (
+                <div className="bg-slate-50 p-3 rounded-xl border border-dashed border-slate-300 flex items-center justify-between mb-2">
+                   <div className="overflow-hidden">
+                    <p className="text-[9px] uppercase text-slate-400 font-bold">Chave PIX (E-mail)</p>
+                    <p className="text-xs font-mono text-slate-600 truncate">{chavePix}</p>
+                   </div>
+                   <button 
+                    onClick={() => { navigator.clipboard.writeText(chavePix); alert("Chave PIX copiada!"); }}
+                    className="text-green3 p-2 hover:bg-green1/10 rounded-lg transition-colors"
+                   >
+                    <Copy size={20} />
+                   </button>
+                </div>
+              )}
 
-              <button 
-                onClick={() => handleConfirmar(produtoSelecionado?.cota ? "Cota via PIX" : "Reserva para compra física", "matheus")}
-                className="flex flex-col items-center gap-1 bg-[var(--color-green3)] text-white py-3 rounded-xl font-bold transition-all shadow-md active:scale-95"
-              >
-                <MessageCircle size={20} />
-                <span className="text-[10px] uppercase">Avisar Matheus</span>
-              </button>
+              <div className="grid grid-cols-2 gap-3">
+                <button 
+                  onClick={() => handleConfirmar(produtoSelecionado.cota ? "Cota via PIX" : "Reserva de item", "debora")}
+                  className="flex flex-col items-center gap-2 bg-green3 text-white py-4 rounded-2xl font-bold hover:bg-green2 transition-all shadow-md shadow-green3/20"
+                >
+                  <MessageCircle size={22} />
+                  <span className="text-sm">Avisar Débora</span>
+                </button>
+
+                <button 
+                  onClick={() => handleConfirmar(produtoSelecionado.cota ? "Cota via PIX" : "Reserva de item", "matheus")}
+                  className="flex flex-col items-center gap-2 bg-green3 text-white py-4 rounded-2xl font-bold hover:bg-green2 transition-all shadow-md shadow-green3/20"
+                >
+                  <MessageCircle size={22} />
+                  <span className="text-sm">Avisar Matheus</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
