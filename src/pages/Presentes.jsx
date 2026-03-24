@@ -8,7 +8,10 @@ import { db } from '../firebase.js';
 
 // --- CONFIGURAÇÕES ---
 const chavePix = "matheusabreu021@gmail.com";
-const telefoneDono = "5521968237181";
+const telefones = {
+  matheus: "5521968237181",
+  debora: "5521974791293" // Verifique se este é o número correto da Débora
+};
 
 const produtos = [
   { id: 1, nome: 'Mesa de jantar', preco: '1.699,00', imagem: 'https://api.vezzomoveis.com.br/wp-content/uploads/2025/08/1756152685314-8608bda9-9255-4ede-a166-d78709545e6e.jpg', link: 'https://vezzomoveis.com.br/p/mesa-de-jantar-pedro-120x80cm-com-4-cadeiras-2' },
@@ -71,13 +74,15 @@ function Presentes() {
     return () => unsub();
   }, []);
 
-  const handleConfirmar = async (metodo) => {
+  const handleConfirmar = async (metodo, destinatario) => {
     if (!nomeConvidado.trim()) {
       alert("Por favor, digite seu nome! ❤️");
       return;
     }
 
-    const saudacao = "Olá Matheus e Débora!";
+    const telefone = telefones[destinatario];
+    const saudacao = destinatario === 'matheus' ? "Olá Matheus!" : "Olá Débora!";
+
     const baseMsg = `${saudacao}\n\n` +
                     `🎁 *Presente:* ${produtoSelecionado.nome}\n` +
                     `💰 *Valor:* R$ ${produtoSelecionado.preco}\n` +
@@ -88,16 +93,16 @@ function Presentes() {
       ? `${baseMsg}\n\n🔗 *Sugestão de Link:* ${produtoSelecionado.link}`
       : baseMsg;
 
-    const urlZap = `https://api.whatsapp.com/send?phone=${telefoneDono}&text=${encodeURIComponent(mensagemFinal)}`;
+    const urlZap = `https://api.whatsapp.com/send?phone=${telefone}&text=${encodeURIComponent(mensagemFinal)}`;
 
     try {
       if (!produtoSelecionado.cota) {
-        await setDoc(doc(db, "presentes", String(produtoSelecionado.id)), {
+        await setDoc(doc(doc(db, "presentes", String(produtoSelecionado.id)), {
           comprador: nomeConvidado,
           produto: produtoSelecionado.nome,
           metodo: metodo,
           data: new Date()
-        });
+        }));
       }
       window.location.href = urlZap;
       setModalAberto(false);
@@ -168,7 +173,6 @@ function Presentes() {
         })}
       </div>
 
-      {/* Botão Fixo no Rodapé */}
       <div className="fixed bottom-0 left-0 w-full p-4 flex justify-center bg-gradient-to-t from-[#F0F7F4] via-[#F0F7F4]/90 to-transparent z-40 pointer-events-none">
         <button 
           onClick={() => navigate("/")} 
@@ -179,23 +183,20 @@ function Presentes() {
         </button>
       </div>
 
-      {/* Spacer para o conteúdo não ficar escondido atrás do botão fixo */}
       <div className="h-20" />
 
       {modalAberto && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 text-center">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 text-center text-slate-800">
           <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm relative flex flex-col items-center animate-[scaleUp_0.3s_ease-out]">
             
             <button onClick={() => setModalAberto(false)} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 bg-gray-100 p-1 rounded-full">
               <X size={20} />
             </button>
 
-            <h2 className="font-great-vibes text-3xl text-[var(--color-green3)] mb-1">Como presentear?</h2>
-            <p className="text-gray-500 text-sm mb-4 font-rubik leading-tight">
-              Item: <strong className="text-gray-800">{produtoSelecionado?.nome}</strong>
-            </p>
+            <h2 className="font-great-vibes text-3xl text-[var(--color-green3)] mb-1 leading-tight">Confirmar Presente</h2>
+            <p className="text-gray-400 text-xs mb-4 font-rubik">Para quem você quer avisar?</p>
 
-            <div className="w-full mb-6">
+            <div className="w-full mb-4">
               <label className="text-[10px] uppercase font-bold text-gray-400 mb-1 block px-1 text-left">Seu Nome:</label>
               <input 
                 type="text" 
@@ -206,42 +207,42 @@ function Presentes() {
               />
             </div>
 
-            {/* SE FOR COTA LUA DE MEL */}
-            {produtoSelecionado?.cota ? (
-              <div className="w-full animate-[fadeIn_0.3s_ease-out]">
-                <div className="bg-gray-50 p-3 rounded-xl border border-dashed border-gray-300 mb-3 flex flex-col items-center">
-                  <img src="/QR CODE.jpeg" alt="QR Code" className="w-32 h-32 object-contain" />
-                  <p className="text-[10px] text-gray-400 mt-1 font-mono">Valor sugerido: R$ {produtoSelecionado?.preco}</p>
+            {produtoSelecionado?.cota && (
+              <div className="w-full mb-4">
+                <div className="bg-gray-50 p-3 rounded-xl border border-dashed border-gray-300 mb-2 flex flex-col items-center">
+                  <img src="/QR CODE.jpeg" alt="QR Code" className="w-24 h-24 object-contain" />
                 </div>
-                <div className="w-full flex items-center gap-2 bg-gray-100 p-2 rounded-lg mb-4 border border-gray-200">
+                <div className="w-full flex items-center gap-2 bg-gray-100 p-2 rounded-lg border border-gray-200">
                   <span className="text-[10px] font-mono text-gray-600 truncate flex-1">{chavePix}</span>
                   <button onClick={copiarPix} className="bg-[var(--color-green3)] text-white p-1.5 rounded-md">
                     {feedbackCopia ? <CheckCircle size={16} /> : <Copy size={16} />}
                   </button>
                 </div>
-                <button onClick={() => handleConfirmar("Contribuição via Pix")} className="w-full bg-green-600 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 shadow-md">
-                  <MessageCircle size={18} /> Confirmar e Avisar no WhatsApp
-                </button>
-              </div>
-            ) : (
-              /* SE FOR PRODUTO FÍSICO */
-              <div className="w-full animate-[fadeIn_0.3s_ease-out]">
-                <div className="bg-green-50 p-4 rounded-xl mb-6">
-                  <p className="text-xs text-green-800 font-rubik leading-relaxed">
-                    Ao confirmar, o item será <strong>reservado</strong> na lista para você. Você poderá comprá-lo na loja que preferir.
-                  </p>
-                </div>
-                <button onClick={() => handleConfirmar("Reserva para compra física")} className="w-full bg-[#8F9E78] text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 shadow-md">
-                  <Lock size={18} /> Reservar e Avisar no WhatsApp
-                </button>
               </div>
             )}
+
+            <div className="grid grid-cols-2 gap-3 w-full">
+              <button 
+                onClick={() => handleConfirmar(produtoSelecionado?.cota ? "Cota via PIX" : "Reserva para compra física", "debora")}
+                className="flex flex-col items-center gap-1 bg-white border-2 border-green-100 text-[var(--color-green3)] py-3 rounded-xl font-bold transition-all shadow-sm active:scale-95"
+              >
+                <MessageCircle size={20} />
+                <span className="text-[10px] uppercase">Avisar Débora</span>
+              </button>
+
+              <button 
+                onClick={() => handleConfirmar(produtoSelecionado?.cota ? "Cota via PIX" : "Reserva para compra física", "matheus")}
+                className="flex flex-col items-center gap-1 bg-[var(--color-green3)] text-white py-3 rounded-xl font-bold transition-all shadow-md active:scale-95"
+              >
+                <MessageCircle size={20} />
+                <span className="text-[10px] uppercase">Avisar Matheus</span>
+              </button>
+            </div>
           </div>
         </div>
       )}
 
       <style>{`
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes scaleUp { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
       `}</style>
     </div>
